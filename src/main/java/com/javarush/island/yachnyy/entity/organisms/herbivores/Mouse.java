@@ -10,5 +10,5 @@ import com.javarush.island.yachnyy.api.annotation.OrganismData;
         maxSpeed       = 1,
         maxFood        = 0.01
 )
-public class Mouse {
+public class Mouse extends Herbivore {
 }
