@@ -1,6 +1,5 @@
 package com.javarush.island.yachnyy.config;
 
-import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,11 +41,6 @@ public class EatTable {
         put("Bear", "Boar", 50);
         put("Bear", "Buffalo", 20);
         put("Bear", "Duck", 10);
-
-        put("Eagle", "Fox", 10);
-        put("Eagle", "Rabbit", 90);
-        put("Eagle", "Mouse", 90);
-        put("Eagle", "Duck", 80);
 
         put("Eagle", "Fox", 10);
         put("Eagle", "Rabbit", 90);

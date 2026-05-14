@@ -32,7 +32,8 @@ public class ResidentMap {
 
     public void add(Organism organism) {
         residents
-                .computeIfAbsent(organism.getClass(),aClass -> new CopyOnWriteArrayList<>())
+//                .computeIfAbsent(organism.getClass(),aClass -> new CopyOnWriteArrayList<>())
+                .computeIfAbsent(organism.getClass(),aClass -> Collections.synchronizedList(new ArrayList<>()))
                 .add(organism);
     }
 

@@ -94,10 +94,17 @@ public class GameMap {
             }
         }
 
-        double maxPlants = 200.0;
-        for (Cell cell : allCells()) {
-            cell.growPlants(maxPlants * 0.1, maxPlants);
-        }
+//        double maxPlants = 200.0;
+//        for (Cell cell : allCells()) {
+//            cell.growPlants(maxPlants * 0.1, maxPlants);
+//        }
+
+        OrganismRegistry.getPlantPrototype().ifPresent(proto -> {
+            double maxMass = proto.maxMassPlantPerCell();
+            for (Cell cell : allCells()) {
+                cell.growPlants(maxMass * 0.1, maxMass);
+            }
+        });
 
     }
 

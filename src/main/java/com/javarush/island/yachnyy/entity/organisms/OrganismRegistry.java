@@ -1,6 +1,7 @@
 package com.javarush.island.yachnyy.entity.organisms;
 
 import com.javarush.island.yachnyy.api.annotation.OrganismData;
+import com.javarush.island.yachnyy.entity.organisms.plants.Plant;
 
 import javax.print.attribute.standard.Finishings;
 import java.util.*;
@@ -54,5 +55,12 @@ public class OrganismRegistry {
 
     public static Organism getPrototype(String className) {
         return prototypes.get(className);
+    }
+
+    public static Optional<Plant> getPlantPrototype() {
+        return prototypes.values().stream()
+                .filter(o -> o instanceof Plant)
+                .map(o -> (Plant) o)
+                .findFirst();
     }
 }
