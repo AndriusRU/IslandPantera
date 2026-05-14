@@ -10,8 +10,9 @@ public class SimulationSettings {
 
     // == Параметры симуляции ==
     public static final int DURATION_TACT = 500;      // длительность такта (500 мс)
-    public static final int MAX_COUNT_TACTS = 100;    // макс кол-во тактов
+    public static final int MAX_COUNT_TACTS = 20;    // макс кол-во тактов
     public static final int PLANT_GROW_TACT = 10;       // Размножение растений
+    public static final double INIT_PERCENT_ANIMAL = 0.01;   // Начальный процент животных
 
     public static final int MIN_FOR_REPRODUCTION = 2;   // Минимальное кол-во особей для размножения
     public static final int MAX_CHILDREN_FROM_PAIR = 4; // Максимум детенышей от одной пары

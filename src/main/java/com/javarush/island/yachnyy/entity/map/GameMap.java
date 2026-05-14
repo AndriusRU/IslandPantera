@@ -1,7 +1,9 @@
 package com.javarush.island.yachnyy.entity.map;
 
+import com.javarush.island.yachnyy.config.SimulationSettings;
 import com.javarush.island.yachnyy.entity.organisms.Organism;
 import com.javarush.island.yachnyy.entity.organisms.OrganismRegistry;
+import com.javarush.island.yachnyy.entity.organisms.plants.Plant;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,10 +78,15 @@ public class GameMap {
                 continue;
             }
 
+            if (prototype instanceof Plant) {
+                continue;
+            }
+
             int maxCountInCell = prototype.getMaxCountInCell();
             int totalCells = rows * cols;
 
-            int startCountPrototype = Math.max(1, (int)(totalCells * maxCountInCell * 0.05));
+            int startCountPrototype = Math.max(1, (int)(totalCells * maxCountInCell * SimulationSettings.INIT_PERCENT_ANIMAL));
+//            System.out.println("Start count proto " + startCountPrototype);
 
             for (int i = 0; i < startCountPrototype; i++) {
                 int row = ThreadLocalRandom.current().nextInt(rows);
@@ -102,7 +109,7 @@ public class GameMap {
         OrganismRegistry.getPlantPrototype().ifPresent(proto -> {
             double maxMass = proto.maxMassPlantPerCell();
             for (Cell cell : allCells()) {
-                cell.growPlants(maxMass * 0.1, maxMass);
+                cell.growPlants(maxMass * 0.2, maxMass);
             }
         });
 

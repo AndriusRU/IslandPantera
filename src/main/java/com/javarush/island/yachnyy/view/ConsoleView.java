@@ -3,7 +3,9 @@ package com.javarush.island.yachnyy.view;
 import com.javarush.island.yachnyy.config.SimulationSettings;
 import com.javarush.island.yachnyy.entity.map.Cell;
 import com.javarush.island.yachnyy.entity.map.GameMap;
+import com.javarush.island.yachnyy.entity.organisms.Animal;
 import com.javarush.island.yachnyy.entity.organisms.Organism;
+import com.javarush.island.yachnyy.entity.organisms.OrganismRegistry;
 
 import java.util.*;
 
@@ -11,7 +13,8 @@ public class ConsoleView {
 
     public static void printStats(GameMap map, int tact) {
 
-        Map<String, Integer> counts = new TreeMap<>();
+//        Map<String, Integer> animalCounts = new TreeMap<>();
+        Map<Class<? extends Organism>, Integer> animalCounts = new TreeMap<>(Comparator.comparing(Class::getSimpleName));
 
         double totalPlants = 0;
         int totalAnimals = 0;
@@ -20,7 +23,12 @@ public class ConsoleView {
             totalPlants += cell.getResidents().getPlantMass();
 
             for (Organism organism : cell.getResidents().getAll()) {
-                counts.merge(organism.getIcon() + " " + organism.getName(),1, Integer::sum);
+//                animalCounts.merge(organism.getIcon() + " " + organism.getName(),1, Integer::sum);
+                if (!(organism instanceof Animal)) {
+                    continue;
+                }
+
+                animalCounts.merge(organism.getClass(),1, Integer::sum);
                 totalAnimals++;
             }
         }
@@ -33,20 +41,37 @@ public class ConsoleView {
         System.out.println("🌿 Растений: " + (int) totalPlants + " кг");
         System.out.println("═".repeat(70));
 
-        counts.forEach((name, count) ->
-                System.out.printf(
-                        "%-20s : %5d %s%n",
-                        name,
-                        count,
-                        bar(count, 200, 20)
-                )
+        double finalTotalPlants = totalPlants;
+        OrganismRegistry.getPlantPrototype().ifPresent(proto -> {
+            double maxPlantOnMap = proto.maxMassPlantPerCell() * map.getRows() * map.getCols();
+            System.out.printf(
+                    "%-20s : %5d %s%n",
+                    "🌿 Трава",
+                    (int) finalTotalPlants,
+                    bar((int) finalTotalPlants, (int) maxPlantOnMap, 20)
+            );
+
+        });
+
+        animalCounts.forEach((clazz, count) ->
+                {
+                    Organism prototype = OrganismRegistry.getPrototype(clazz.getSimpleName());
+                    int maxOrganismsOnMap = prototype.getMaxCountInCell() * map.getRows() * map.getCols();
+                    String titleForStatistics = prototype.getIcon() + " " + prototype.getName();
+                    System.out.printf(
+                            "%-20s : %5d %s%n",
+                            titleForStatistics,
+                            count,
+                            bar(count, maxOrganismsOnMap, 20)
+                    );
+                }
         );
     }
 
     public static void printMap(GameMap map) {
 
         int displayCols = Math.min(SimulationSettings.MAP_DISPLAY_COLS, map.getCols());
-        int displayRows = Math.min(SimulationSettings.MAP_DISPLAY_ROWS, map.getCols());
+        int displayRows = Math.min(SimulationSettings.MAP_DISPLAY_ROWS, map.getRows());
 
         System.out.println("┌── Карта " + "─".repeat(displayCols * 2) + "┐");
         for (int rowNumber = 0; rowNumber < displayRows; rowNumber++) {
