@@ -32,8 +32,8 @@ public class ResidentMap {
 
     public void add(Organism organism) {
         residents
-//                .computeIfAbsent(organism.getClass(),aClass -> new CopyOnWriteArrayList<>())
-                .computeIfAbsent(organism.getClass(),aClass -> Collections.synchronizedList(new ArrayList<>()))
+                .computeIfAbsent(organism.getClass(),aClass -> new CopyOnWriteArrayList<>())
+//                .computeIfAbsent(organism.getClass(),aClass -> Collections.synchronizedList(new ArrayList<>()))
                 .add(organism);
     }
 
@@ -77,6 +77,7 @@ public class ResidentMap {
             for (int i = 0; i < list.size(); i++) {
                 Organism organism = list.get(i);
                 if (organism.isAlive()) {
+                    organism.die();
                     list.remove(i);
                     return  organism;
                 }
@@ -87,6 +88,7 @@ public class ResidentMap {
     }
 
     // Получить всех организмов клетки
+    // public List<Organism> getAliveSnapshot()
     public List<Organism> getAll() {
         List<Organism> aliveOrganisms = new ArrayList<>();
         for (List<Organism> organismList : residents.values()) {

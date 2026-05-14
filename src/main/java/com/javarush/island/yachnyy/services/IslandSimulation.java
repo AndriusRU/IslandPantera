@@ -59,12 +59,19 @@ public class IslandSimulation {
         System.out.println("Симуляция запущена.");
         ConsoleView.printStats(map, 0);
 
-        sheduler.scheduleWithFixedDelay(
+//        sheduler.scheduleWithFixedDelay(
+//                () -> this.runTact(),
+//                SimulationSettings.DURATION_TACT,
+//                SimulationSettings.DURATION_TACT,
+//                TimeUnit.MILLISECONDS
+//        );
+        sheduler.scheduleAtFixedRate(
                 () -> this.runTact(),
                 SimulationSettings.DURATION_TACT,
                 SimulationSettings.DURATION_TACT,
                 TimeUnit.MILLISECONDS
         );
+
 
     }
 
@@ -94,7 +101,6 @@ public class IslandSimulation {
         List<Callable<Void>> tasks = new ArrayList<>();
         int plantGrowTact = SimulationSettings.PLANT_GROW_TACT;
 
-
         for (Cell cell : map.allCells()) {
             tasks.add(() -> {
                cell.growPlants(plantGrowTact, maxPlantMass);
@@ -111,11 +117,55 @@ public class IslandSimulation {
     }
 
     private void runAnimalLifyCicle() {
+        List<Callable<Void>> tasks = new ArrayList<>();
+
+        for (Cell cell : map.allCells()) {
+            tasks.add(() -> {
+                new SimulationTask(cell, map).run();
+                return null;
+            });
+        }
+        try {
+            workerPool.invokeAll(tasks);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private boolean shouldStop(int currentTact) {
+        int maxCountTacts = SimulationSettings.MAX_COUNT_TACTS;
+
+        if (currentTact >= maxCountTacts) {
+            System.out.println("Достигнут предел тактов для симуляции (" + maxCountTacts + ")");
+            return true;
+        }
+
+        if (SimulationSettings.STOP_ALL_DEAD) {
+            long total = map.allCells().stream()
+                    .mapToLong(cell -> cell.getResidents().totalSize())
+                    .sum();
+            if (total == 0) {
+                System.out.println("Все животные погибли.");
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    private void shutdownSimulation() {
+    public void shutdownSimulation() {
+        sheduler.shutdown();
+        workerPool.shutdown();
+
+        try {
+            if (!workerPool.awaitTermination(5, TimeUnit.SECONDS)) {
+                workerPool.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            workerPool.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+
+        System.out.println("Симуляция завершена. Такт - " + tact.get());
     }
 }

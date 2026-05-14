@@ -2,6 +2,7 @@ package com.javarush.island.yachnyy.entity.organisms;
 
 import com.javarush.island.yachnyy.api.annotation.OrganismData;
 import com.javarush.island.yachnyy.api.entity.Reproducible;
+import com.javarush.island.yachnyy.config.SimulationSettings;
 import lombok.Getter;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -44,7 +45,7 @@ public abstract class Organism implements Reproducible, Cloneable {
         OrganismData annotationData = this.getClass().getAnnotation(OrganismData.class);
 
         if (annotationData == null) {
-            throw new IllegalStateException(this.getClass().getSimpleName() + " должeн иметь аннотацию @OrganismData");
+            throw new IllegalStateException(this.getClass().getSimpleName() + " должен иметь аннотацию @OrganismData");
         }
 
         this.name           = annotationData.name();
@@ -55,7 +56,9 @@ public abstract class Organism implements Reproducible, Cloneable {
         this.maxFood        = annotationData.maxFood();
 
         this.weight = ThreadLocalRandom.current().nextDouble(0.2 * maxWeight, maxWeight);
-        this.currentFood = ThreadLocalRandom.current().nextDouble(0, maxFood);
+
+        this.currentFood = maxFood > 0 ? ThreadLocalRandom.current().nextDouble(0, maxFood) : 0;
+
     }
 
     public boolean isAlive() {
@@ -70,9 +73,13 @@ public abstract class Organism implements Reproducible, Cloneable {
         currentFood = Math.min(maxFood, currentFood + amount);
     }
 
-    public void reduceEnergy(double amount) {
-        currentFood = Math.max(0, currentFood - amount);
-        if (currentFood <= 0 && maxFood > 0) {
+    public void reduceEnergy(double rate) {
+        if (maxFood <= 0) {
+            return;
+        }
+
+        currentFood = Math.max(0, currentFood - maxFood * rate);
+        if (currentFood <= 0) {
             die();
         }
     }
@@ -92,7 +99,7 @@ public abstract class Organism implements Reproducible, Cloneable {
     public Organism createChild() {
             try {
                 Organism child = (Organism) clone();
-                child.currentFood = 0.1 * child.maxFood;
+                child.currentFood = 4 * SimulationSettings.HUNGER_RATE * child.maxFood;
                 return child;
             } catch (CloneNotSupportedException e) {
                 throw new RuntimeException(e);
